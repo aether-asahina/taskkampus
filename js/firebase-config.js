@@ -14,14 +14,14 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "GANTI_DENGAN_API_KEY_KAMU",
-  authDomain: "GANTI.firebaseapp.com",
-  projectId: "GANTI_PROJECT_ID",
-  storageBucket: "GANTI.appspot.com",
-  messagingSenderId: "GANTI_SENDER_ID",
-  appId: "GANTI_APP_ID"
+  apiKey: "AIzaSyAXzPdaTb54WUm71P6CduE9fAum0zurzIc",
+  authDomain: "taskkampus-2a3ab.firebaseapp.com",
+  projectId: "taskkampus-2a3ab",
+  storageBucket: "taskkampus-2a3ab.firebasestorage.app",
+  messagingSenderId: "391052843338",
+  appId: "1:391052843338:web:3b9c3312879acf36c189b3",
+  measurementId: "G-S7F96Q5KLJ"
 };
-
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
