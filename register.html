@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar — TaskKampus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="auth-wrap">
+<div class="auth-box">
+    <div class="auth-logo">
+        <h1>Task<span>Kampus</span></h1>
+        <p>Manajemen Tugas Kuliah</p>
+    </div>
+    <div class="auth-card">
+        <h2>Buat Akun Baru</h2>
+        <div id="alert-box"></div>
+        <form id="form-register">
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" id="nama" placeholder="Nama kamu" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="email@kampus.ac.id" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Min. 6 karakter" required>
+            </div>
+            <div class="form-group">
+                <label>Konfirmasi Password</label>
+                <input type="password" id="confirm" placeholder="Ulangi password" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px">
+                Daftar →
+            </button>
+        </form>
+    </div>
+    <p class="auth-footer">Sudah punya akun? <a href="login.html">Masuk</a></p>
+</div>
+</div>
+
+<script type="module">
+import { auth } from "./js/firebase-config.js";
+import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { redirectIfLoggedIn } from "./js/common.js";
+
+redirectIfLoggedIn();
+
+const form = document.getElementById("form-register");
+const alertBox = document.getElementById("alert-box");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    alertBox.innerHTML = "";
+    const nama = document.getElementById("nama").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirm = document.getElementById("confirm").value;
+
+    if (password !== confirm) {
+        alertBox.innerHTML = `<div class="alert alert-error">Password tidak cocok.</div>`;
+        return;
+    }
+    if (password.length < 6) {
+        alertBox.innerHTML = `<div class="alert alert-error">Password minimal 6 karakter.</div>`;
+        return;
+    }
+
+    try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: nama });
+        window.location.href = "dashboard.html";
+    } catch (err) {
+        let pesan = "Registrasi gagal.";
+        if (err.code === "auth/email-already-in-use") pesan = "Email sudah terdaftar.";
+        alertBox.innerHTML = `<div class="alert alert-error">${pesan}</div>`;
+    }
+});
+</script>
+
+</body>
+</html>
