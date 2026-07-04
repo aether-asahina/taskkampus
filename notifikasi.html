@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifikasi — TaskKampus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="shell">
+<div id="sidebar-container"></div>
+<main class="main">
+    <div class="page-header">
+        <h2>🔔 Notifikasi Deadline</h2>
+        <p>Tugas yang deadline-nya dalam 3 hari ke depan</p>
+    </div>
+    <div id="notif-content"></div>
+</main>
+</div>
+
+<script type="module">
+import { requireAuth, renderSidebar, sanitize, formatTanggal, toDate, getAllTugas, getNotifikasi } from "./js/common.js";
+
+requireAuth(async (user) => {
+    const tugas = await getAllTugas(user.uid);
+    const notif = getNotifikasi(tugas);
+    renderSidebar("notifikasi", user.displayName || user.email, notif.length);
+
+    const el = document.getElementById("notif-content");
+    if (notif.length === 0) {
+        el.innerHTML = `
+            <div class="card">
+                <div class="empty-state">
+                    <span class="icon">🎉</span>
+                    <h3>Semua aman!</h3>
+                    <p>Tidak ada tugas yang deadline-nya mendekat. Good job!</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    const now = new Date();
+    el.innerHTML = `<div class="card">${notif.map(n => {
+        const dl = toDate(n.deadline);
+        const sisaJam = Math.ceil((dl - now) / 3600000);
+        const sisaLabel = sisaJam <= 0
+            ? "⚠️ Sudah lewat!"
+            : sisaJam < 24
+                ? `⏰ ${sisaJam} jam lagi`
+                : `🗓️ ${Math.ceil(sisaJam / 24)} hari lagi`;
+
+        return `
+        <div class="tugas-item prioritas-${n.prioritas}">
+            <div class="tugas-info">
+                <div class="tugas-judul">${sanitize(n.judul)}</div>
+                <div class="tugas-matkul">${sanitize(n.mataKuliah)}</div>
+                <div class="tugas-meta">
+                    <span>📅 ${formatTanggal(n.deadline)}</span>
+                    <span style="color:var(--warn);font-weight:600">${sisaLabel}</span>
+                    <span class="badge badge-${n.prioritas}">${cap(n.prioritas)}</span>
+                </div>
+            </div>
+            <div class="tugas-actions">
+                <a href="edit.html?id=${n.id}" class="btn btn-ghost btn-sm">✏️ Edit</a>
+            </div>
+        </div>
+        `;
+    }).join("")}</div>`;
+});
+
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+</script>
+
+</body>
+</html>
