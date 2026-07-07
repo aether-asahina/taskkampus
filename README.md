@@ -40,3 +40,5 @@ Tambahkan file `index.html` kecil di root:
     ├── firebase-config.js  (isi dengan config Firebase kamu)
     └── common.js
 ```
+## open in
+https://aether-asahina.github.io/taskkampus/
