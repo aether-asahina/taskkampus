@@ -5,234 +5,229 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — TaskKampus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div class="shell">
-<div id="sidebar-container"></div>
-<main class="main">
-    <div id="alert-box"></div>
+  <div id="sidebar-container"></div>
+  <main class="main">
+    <div id="notif-prompt-container"></div>
     <div id="notif-bar-container"></div>
-
     <div class="page-header">
-        <h2>Dashboard</h2>
-        <p id="welcome-text">Selamat datang! 👋</p>
+      <h2>Dashboard</h2>
+      <p id="welcome-text">Memuat...</p>
     </div>
-
     <div class="stats-grid">
-        <div class="stat-card total">
-            <div class="num" id="stat-total">0</div>
-            <div class="label">Total Tugas</div>
-        </div>
-        <div class="stat-card selesai">
-            <div class="num" style="color:var(--accent2)" id="stat-selesai">0</div>
-            <div class="label">Selesai</div>
-        </div>
-        <div class="stat-card proses">
-            <div class="num" style="color:var(--yellow)" id="stat-proses">0</div>
-            <div class="label">Dalam Proses</div>
-        </div>
-        <div class="stat-card telat">
-            <div class="num" style="color:var(--warn)" id="stat-terlambat">0</div>
-            <div class="label">Terlambat</div>
-        </div>
+      <div class="stat-card total"><div class="num" id="s-total">0</div><div class="label">Total Tugas</div></div>
+      <div class="stat-card selesai"><div class="num" style="color:var(--accent2)" id="s-selesai">0</div><div class="label">Selesai</div></div>
+      <div class="stat-card proses"><div class="num" style="color:var(--yellow)" id="s-proses">0</div><div class="label">Proses</div></div>
+      <div class="stat-card telat"><div class="num" style="color:var(--warn)" id="s-telat">0</div><div class="label">Terlambat</div></div>
     </div>
-
     <div class="progress-wrap" id="progress-wrap" style="display:none">
-        <div class="progress-label">
-            <span style="font-size:13px;font-weight:600">Progress Keseluruhan</span>
-            <span style="color:var(--accent2);font-weight:700" id="progress-pct">0%</span>
-        </div>
-        <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
-        </div>
+      <div class="progress-label">
+        <span>Progress Keseluruhan</span>
+        <span style="color:var(--accent2);font-weight:800" id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
     </div>
-
     <div class="card">
-        <div class="card-header">
-            <h3>Daftar Tugas</h3>
-            <a href="tambah.html" class="btn btn-primary btn-sm">+ Tambah</a>
-        </div>
-
-        <div class="filter-bar">
-            <input type="text" id="filter-search" placeholder="🔍 Cari tugas...">
-            <select id="filter-status">
-                <option value="">Semua Status</option>
-                <option value="belum">Belum</option>
-                <option value="proses">Proses</option>
-                <option value="selesai">Selesai</option>
-            </select>
-            <select id="filter-matkul">
-                <option value="">Semua Matkul</option>
-            </select>
-            <button type="button" id="btn-reset" class="btn btn-ghost btn-sm">Reset</button>
-        </div>
-
-        <div id="tugas-list"></div>
+      <div class="card-header">
+        <h3>Daftar Tugas</h3>
+        <a href="tambah.html" class="btn btn-primary btn-sm">+ Tambah</a>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="filter-search" placeholder="🔍 Cari tugas...">
+        <select id="filter-status">
+          <option value="">Semua Status</option>
+          <option value="belum">Belum</option>
+          <option value="proses">Proses</option>
+          <option value="selesai">Selesai</option>
+        </select>
+        <select id="filter-matkul"><option value="">Semua Matkul</option></select>
+        <button type="button" id="btn-reset" class="btn btn-ghost btn-sm">Reset</button>
+      </div>
+      <div id="tugas-list"></div>
     </div>
-</main>
+  </main>
+</div>
+<div id="bottom-nav-container"></div>
+
+<!-- MODAL KALENDER -->
+<div id="modal-kal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:100%;max-width:320px">
+    <h3 style="font-size:15px;font-weight:800;margin-bottom:4px">📅 Simpan ke Kalender</h3>
+    <p id="modal-sub" style="font-size:12px;color:var(--muted);margin-bottom:20px"></p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button id="btn-ics" class="btn btn-primary" style="justify-content:center">⬇️ Download .ics (Apple / Outlook)</button>
+      <a id="btn-gcal" href="#" target="_blank" rel="noopener" class="btn btn-ghost" style="justify-content:center">📆 Buka Google Calendar</a>
+    </div>
+    <button id="btn-modal-close" class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:12px">Tutup</button>
+  </div>
 </div>
 
 <script type="module">
-import { auth, db } from "./js/firebase-config.js";
+import { db } from "./js/firebase-config.js";
 import { doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import {
-    requireAuth, renderSidebar, sanitize, formatTanggal, toDate,
-    getAllTugas, hitungStats, getNotifikasi
-} from "./js/common.js";
+import { requireAuth, renderSidebar, renderBottomNav, sanitize, formatTanggal, toDate, getAllTugas, hitungStats, getNotifikasi } from "./js/common.js";
+import { requestNotifPermission, scheduleLocalNotif } from "./js/notifications.js";
+import { downloadICS, googleCalendarUrl } from "./js/calendar.js";
 
-let semuaTugas = [];
+let allTugas = [];
+let modalTugas = null;
 
-requireAuth(async (user) => {
-    document.getElementById("welcome-text").textContent = `Selamat datang, ${user.displayName || user.email}! 👋`;
+// Modal
+const modal = document.getElementById("modal-kal");
+const closeModal = () => modal.style.display = "none";
+document.getElementById("btn-modal-close").addEventListener("click", closeModal);
+modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
+document.getElementById("btn-ics").addEventListener("click", () => { if (modalTugas) downloadICS(modalTugas); });
 
-    semuaTugas = await getAllTugas(user.uid);
-    const notif = getNotifikasi(semuaTugas);
-
-    renderSidebar("dashboard", user.displayName || user.email, notif.length);
-    renderNotifBar(notif);
-    isiFilterMatkul(semuaTugas);
-    render();
-
-    document.getElementById("filter-search").addEventListener("input", render);
-    document.getElementById("filter-status").addEventListener("change", render);
-    document.getElementById("filter-matkul").addEventListener("change", render);
-    document.getElementById("btn-reset").addEventListener("click", () => {
-        document.getElementById("filter-search").value = "";
-        document.getElementById("filter-status").value = "";
-        document.getElementById("filter-matkul").value = "";
-        render();
-    });
-});
-
-function renderNotifBar(notif) {
-    const el = document.getElementById("notif-bar-container");
-    if (notif.length === 0) { el.innerHTML = ""; return; }
-    el.innerHTML = `
-        <div class="notif-bar">
-            <h4>🔔 Deadline Mendekat (3 hari ke depan)</h4>
-            ${notif.map(n => `
-                <div class="notif-item">
-                    <span class="dot"></span>
-                    <span><strong>${sanitize(n.judul)}</strong> — ${sanitize(n.mataKuliah)} — ${formatTanggal(n.deadline)}</span>
-                </div>
-            `).join("")}
-        </div>
-    `;
+function bukaModal(t) {
+  modalTugas = t;
+  document.getElementById("modal-sub").textContent = `${t.judul} — ${t.mataKuliah}`;
+  document.getElementById("btn-gcal").href = googleCalendarUrl(t);
+  modal.style.display = "flex";
 }
 
-function isiFilterMatkul(list) {
-    const matkulSet = [...new Set(list.map(t => t.mataKuliah))].sort();
-    const sel = document.getElementById("filter-matkul");
-    matkulSet.forEach(mk => {
-        const opt = document.createElement("option");
-        opt.value = mk;
-        opt.textContent = mk;
-        sel.appendChild(opt);
-    });
+requireAuth(async (user) => {
+  document.getElementById("welcome-text").textContent = `Selamat datang, ${user.displayName || user.email}! 👋`;
+  allTugas = await getAllTugas(user.uid);
+  const notif = getNotifikasi(allTugas);
+
+  renderSidebar("dashboard", user.displayName || user.email, notif.length);
+  renderBottomNav("dashboard", notif.length);
+  renderNotifBar(notif);
+  renderNotifPrompt(user);
+  isiMatkul(allTugas);
+  render();
+  scheduleLocalNotif(allTugas);
+
+  document.getElementById("filter-search").addEventListener("input", render);
+  document.getElementById("filter-status").addEventListener("change", render);
+  document.getElementById("filter-matkul").addEventListener("change", render);
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    ["filter-search","filter-status","filter-matkul"].forEach(id => document.getElementById(id).value = "");
+    render();
+  });
+});
+
+function renderNotifPrompt(user) {
+  const el = document.getElementById("notif-prompt-container");
+  if (!("Notification" in window) || Notification.permission !== "default") { el.innerHTML = ""; return; }
+  el.innerHTML = `<div class="notif-prompt">
+    <p><strong>🔔 Aktifkan notifikasi</strong>Biar kamu diingatkan kalau ada deadline mendekat.</p>
+    <button class="btn btn-primary btn-sm" id="btn-allow-notif">Aktifkan</button>
+  </div>`;
+  document.getElementById("btn-allow-notif").addEventListener("click", async () => {
+    await requestNotifPermission(user); el.innerHTML = "";
+  });
+}
+
+function renderNotifBar(notif) {
+  const el = document.getElementById("notif-bar-container");
+  if (!notif.length) { el.innerHTML = ""; return; }
+  el.innerHTML = `<div class="notif-bar"><h4>🔔 Deadline Mendekat</h4>${notif.map(n=>`
+    <div class="notif-item"><span class="dot"></span>
+    <span><strong>${sanitize(n.judul)}</strong> — ${sanitize(n.mataKuliah)} — ${formatTanggal(n.deadline)}</span></div>
+  `).join("")}</div>`;
+}
+
+function isiMatkul(list) {
+  const sel = document.getElementById("filter-matkul");
+  [...new Set(list.map(t=>t.mataKuliah))].sort().forEach(mk => {
+    const o = document.createElement("option"); o.value = mk; o.textContent = mk; sel.appendChild(o);
+  });
 }
 
 function render() {
-    const search = document.getElementById("filter-search").value.toLowerCase();
-    const fStatus = document.getElementById("filter-status").value;
-    const fMatkul = document.getElementById("filter-matkul").value;
+  const search  = document.getElementById("filter-search").value.toLowerCase();
+  const fStatus = document.getElementById("filter-status").value;
+  const fMatkul = document.getElementById("filter-matkul").value;
+  const pOrd    = {tinggi:1,sedang:2,rendah:3};
 
-    let list = semuaTugas.filter(t => {
-        if (fStatus && t.status !== fStatus) return false;
-        if (fMatkul && t.mataKuliah !== fMatkul) return false;
-        if (search && !t.judul.toLowerCase().includes(search) && !t.mataKuliah.toLowerCase().includes(search)) return false;
-        return true;
-    });
+  const list = allTugas.filter(t => {
+    if (fStatus && t.status !== fStatus) return false;
+    if (fMatkul && t.mataKuliah !== fMatkul) return false;
+    if (search && !t.judul.toLowerCase().includes(search) && !t.mataKuliah.toLowerCase().includes(search)) return false;
+    return true;
+  }).sort((a,b) => {
+    const p = (pOrd[a.prioritas]||4)-(pOrd[b.prioritas]||4);
+    return p||toDate(a.deadline)-toDate(b.deadline);
+  });
 
-    const prioritasOrder = { tinggi: 1, sedang: 2, rendah: 3 };
-    list.sort((a, b) => {
-        const p = (prioritasOrder[a.prioritas] || 4) - (prioritasOrder[b.prioritas] || 4);
-        if (p !== 0) return p;
-        return toDate(a.deadline) - toDate(b.deadline);
-    });
+  const s = hitungStats(allTugas);
+  document.getElementById("s-total").textContent   = s.total;
+  document.getElementById("s-selesai").textContent = s.selesai;
+  document.getElementById("s-proses").textContent  = s.proses;
+  document.getElementById("s-telat").textContent   = s.terlambat;
+  if (s.total > 0) {
+    const pct = Math.round(s.selesai/s.total*100);
+    document.getElementById("progress-wrap").style.display = "block";
+    document.getElementById("progress-pct").textContent = pct+"%";
+    document.getElementById("progress-fill").style.width = pct+"%";
+  }
 
-    const stats = hitungStats(semuaTugas);
-    document.getElementById("stat-total").textContent = stats.total;
-    document.getElementById("stat-selesai").textContent = stats.selesai;
-    document.getElementById("stat-proses").textContent = stats.proses;
-    document.getElementById("stat-terlambat").textContent = stats.terlambat;
+  const el = document.getElementById("tugas-list");
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state"><span class="icon">📭</span><h3>Belum ada tugas</h3><p>Klik "+ Tambah" untuk mulai.</p></div>`;
+    return;
+  }
 
-    if (stats.total > 0) {
-        const pct = Math.round((stats.selesai / stats.total) * 100);
-        document.getElementById("progress-wrap").style.display = "block";
-        document.getElementById("progress-pct").textContent = pct + "%";
-        document.getElementById("progress-fill").style.width = pct + "%";
-    }
-
-    const container = document.getElementById("tugas-list");
-    if (list.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <span class="icon">📭</span>
-                <h3>Belum ada tugas</h3>
-                <p>Klik "Tambah" untuk membuat tugas pertama kamu!</p>
-            </div>
-        `;
-        return;
-    }
-
-    container.innerHTML = list.map(t => {
-        const selesai = t.status === "selesai";
-        const dl = toDate(t.deadline);
-        const telat = dl < new Date() && !selesai;
-        return `
-        <div class="tugas-item prioritas-${t.prioritas} ${selesai ? 'done' : ''}">
-            <div class="tugas-info">
-                <div class="tugas-judul ${selesai ? 'done' : ''}">${sanitize(t.judul)}</div>
-                <div class="tugas-matkul">${sanitize(t.mataKuliah)}</div>
-                ${t.deskripsi ? `<div class="tugas-desc">${sanitize(t.deskripsi)}</div>` : ''}
-                <div class="tugas-meta">
-                    <span>📅 ${formatTanggal(t.deadline)}</span>
-                    ${telat ? '<span class="telat">⚠️ Terlambat!</span>' : ''}
-                    <span class="badge badge-${t.prioritas}">${cap(t.prioritas)}</span>
-                    <span class="badge badge-${t.status}">${cap(t.status)}</span>
-                </div>
-            </div>
-            <div class="tugas-actions">
-                <select class="status-select" data-id="${t.id}">
-                    <option value="belum" ${t.status==='belum'?'selected':''}>⬜ Belum</option>
-                    <option value="proses" ${t.status==='proses'?'selected':''}>🔄 Proses</option>
-                    <option value="selesai" ${t.status==='selesai'?'selected':''}>✅ Selesai</option>
-                </select>
-                <a href="edit.html?id=${t.id}" class="btn btn-ghost btn-sm">✏️ Edit</a>
-                <button type="button" class="btn btn-danger" data-hapus="${t.id}">🗑️</button>
-            </div>
+  el.innerHTML = list.map(t => {
+    const done = t.status==="selesai";
+    const telat = toDate(t.deadline)<new Date() && !done;
+    return `<div class="tugas-item prioritas-${t.prioritas} ${done?'done':''}">
+      <div class="tugas-info">
+        <div class="tugas-judul ${done?'done':''}">${sanitize(t.judul)}</div>
+        <div class="tugas-matkul">${sanitize(t.mataKuliah)}</div>
+        ${t.deskripsi?`<div class="tugas-desc">${sanitize(t.deskripsi)}</div>`:''}
+        <div class="tugas-meta">
+          <span>📅 ${formatTanggal(t.deadline)}</span>
+          ${telat?'<span class="telat">⚠️ Terlambat!</span>':''}
+          <span class="badge badge-${t.prioritas}">${cap(t.prioritas)}</span>
+          <span class="badge badge-${t.status}">${cap(t.status)}</span>
         </div>
-        `;
-    }).join("");
+      </div>
+      <div class="tugas-actions">
+        <select class="status-select" data-id="${t.id}">
+          <option value="belum" ${t.status==='belum'?'selected':''}>⬜ Belum</option>
+          <option value="proses" ${t.status==='proses'?'selected':''}>🔄 Proses</option>
+          <option value="selesai" ${t.status==='selesai'?'selected':''}>✅ Selesai</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" data-kal="${t.id}" title="Simpan ke Kalender">📅</button>
+        <a href="edit.html?id=${t.id}" class="btn btn-ghost btn-sm">✏️</a>
+        <button class="btn btn-danger" data-del="${t.id}">🗑️</button>
+      </div>
+    </div>`;
+  }).join("");
 
-    container.querySelectorAll(".status-select").forEach(sel => {
-        sel.addEventListener("change", async (e) => {
-            const id = e.target.dataset.id;
-            const newStatus = e.target.value;
-            await updateDoc(doc(db, "tugas", id), { status: newStatus });
-            const t = semuaTugas.find(x => x.id === id);
-            if (t) t.status = newStatus;
-            render();
-        });
+  el.querySelectorAll(".status-select").forEach(sel => {
+    sel.addEventListener("change", async e => {
+      const id = e.target.dataset.id;
+      await updateDoc(doc(db,"tugas",id),{status:e.target.value});
+      const t = allTugas.find(x=>x.id===id); if(t) t.status=e.target.value;
+      render();
     });
-
-    container.querySelectorAll("[data-hapus]").forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-            if (!confirm("Hapus tugas ini?")) return;
-            const id = e.target.dataset.hapus;
-            await deleteDoc(doc(db, "tugas", id));
-            semuaTugas = semuaTugas.filter(t => t.id !== id);
-            render();
-        });
+  });
+  el.querySelectorAll("[data-kal]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const t = allTugas.find(x=>x.id===e.currentTarget.dataset.kal);
+      if(t) bukaModal(t);
     });
+  });
+  el.querySelectorAll("[data-del]").forEach(btn => {
+    btn.addEventListener("click", async e => {
+      if(!confirm("Hapus tugas ini?")) return;
+      const id = e.currentTarget.dataset.del;
+      await deleteDoc(doc(db,"tugas",id));
+      allTugas = allTugas.filter(t=>t.id!==id);
+      render();
+    });
+  });
 }
 
-function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function cap(s) { return s.charAt(0).toUpperCase()+s.slice(1); }
 </script>
-
 </body>
 </html>
-
