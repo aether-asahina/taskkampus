@@ -1,23 +1,17 @@
 // =============================================
-// HELPER UMUM (dipakai di semua halaman)
+// HELPER UMUM v2
 // =============================================
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-// Wajib login untuk akses halaman ini. Panggil di tiap halaman app.
-// callback(user) dijalankan setelah user dipastikan login.
 export function requireAuth(callback) {
   onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-    } else {
-      callback(user);
-    }
+    if (!user) window.location.href = "login.html";
+    else callback(user);
   });
 }
 
-// Kalau sudah login tapi buka halaman login/register, redirect ke dashboard.
 export function redirectIfLoggedIn() {
   onAuthStateChanged(auth, (user) => {
     if (user) window.location.href = "dashboard.html";
@@ -37,51 +31,47 @@ export function sanitize(val) {
 
 export function formatTanggal(date) {
   if (!date) return "-";
-  const d = date instanceof Date ? date : date.toDate();
+  const d = date instanceof Date ? date : date.toDate?.() ?? new Date(date);
   return d.toLocaleString("id-ID", {
     day: "2-digit", month: "short", year: "numeric",
     hour: "2-digit", minute: "2-digit"
   });
 }
 
-// Ambil SEMUA tugas milik user (filter/sort dilakukan di JS, bukan di query,
-// supaya tidak kena batasan composite index Firestore)
+export function toDate(deadline) {
+  if (!deadline) return new Date(0);
+  return deadline?.toDate ? deadline.toDate() : new Date(deadline);
+}
+
 export async function getAllTugas(uid) {
   const q = query(collection(db, "tugas"), where("uid", "==", uid));
   const snap = await getDocs(q);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-export function hitungStats(tugasList) {
+export function hitungStats(list) {
   const now = new Date();
-  const stats = { total: 0, selesai: 0, proses: 0, belum: 0, terlambat: 0 };
-  tugasList.forEach(t => {
-    stats.total++;
-    if (t.status === "selesai") stats.selesai++;
-    if (t.status === "proses") stats.proses++;
-    if (t.status === "belum") stats.belum++;
-    const dl = t.deadline?.toDate ? t.deadline.toDate() : new Date(t.deadline);
-    if (dl < now && t.status !== "selesai") stats.terlambat++;
+  const s = { total: 0, selesai: 0, proses: 0, belum: 0, terlambat: 0 };
+  list.forEach(t => {
+    s.total++;
+    s[t.status] = (s[t.status] || 0) + 1;
+    const dl = toDate(t.deadline);
+    if (dl < now && t.status !== "selesai") s.terlambat++;
   });
-  return stats;
+  return s;
 }
 
-export function getNotifikasi(tugasList) {
+export function getNotifikasi(list) {
   const now = new Date();
-  const batas = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
-  return tugasList
+  const batas = new Date(now.getTime() + 3 * 24 * 3600 * 1000);
+  return list
     .filter(t => {
-      const dl = t.deadline?.toDate ? t.deadline.toDate() : new Date(t.deadline);
+      const dl = toDate(t.deadline);
       return t.status !== "selesai" && dl >= now && dl <= batas;
     })
     .sort((a, b) => toDate(a.deadline) - toDate(b.deadline));
 }
 
-export function toDate(deadline) {
-  return deadline?.toDate ? deadline.toDate() : new Date(deadline);
-}
-
-// Render sidebar navigasi ke dalam elemen #sidebar-container
 export function renderSidebar(activePage, namaUser, jumlahNotif) {
   const el = document.getElementById("sidebar-container");
   if (!el) return;
@@ -91,13 +81,13 @@ export function renderSidebar(activePage, namaUser, jumlahNotif) {
         <h1>Task<span>Kampus</span></h1>
         <p>Manajemen Tugas Kuliah</p>
       </div>
-      <a href="dashboard.html" class="nav-item ${activePage === 'dashboard' ? 'active' : ''}">
+      <a href="dashboard.html" class="nav-item ${activePage==='dashboard'?'active':''}">
         <span class="icon">📋</span> Dashboard
       </a>
-      <a href="tambah.html" class="nav-item ${activePage === 'tambah' ? 'active' : ''}">
+      <a href="tambah.html" class="nav-item ${activePage==='tambah'?'active':''}">
         <span class="icon">➕</span> Tambah Tugas
       </a>
-      <a href="notifikasi.html" class="nav-item ${activePage === 'notifikasi' ? 'active' : ''}">
+      <a href="notifikasi.html" class="nav-item ${activePage==='notifikasi'?'active':''}">
         <span class="icon">🔔</span> Notifikasi
         ${jumlahNotif > 0 ? `<span class="notif-badge">${jumlahNotif}</span>` : ''}
       </a>
@@ -107,8 +97,36 @@ export function renderSidebar(activePage, namaUser, jumlahNotif) {
       </div>
     </nav>
   `;
-  document.getElementById("btn-logout").addEventListener("click", (e) => {
-    e.preventDefault();
-    logout();
+  document.getElementById("btn-logout").addEventListener("click", e => {
+    e.preventDefault(); logout();
+  });
+}
+
+export function renderBottomNav(activePage, jumlahNotif) {
+  const el = document.getElementById("bottom-nav-container");
+  if (!el) return;
+  el.innerHTML = `
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="${activePage==='dashboard'?'active':''}">
+        <span class="bn-icon">📋</span>
+        <span>Tugas</span>
+      </a>
+      <a href="tambah.html" class="${activePage==='tambah'?'active':''}">
+        <span class="bn-icon">➕</span>
+        <span>Tambah</span>
+      </a>
+      <a href="notifikasi.html" class="${activePage==='notifikasi'?'active':''}">
+        <span class="bn-icon">🔔</span>
+        ${jumlahNotif > 0 ? `<span class="notif-badge">${jumlahNotif}</span>` : ''}
+        <span>Notifikasi</span>
+      </a>
+      <a href="#" id="bn-logout">
+        <span class="bn-icon">🚪</span>
+        <span>Keluar</span>
+      </a>
+    </nav>
+  `;
+  document.getElementById("bn-logout").addEventListener("click", e => {
+    e.preventDefault(); logout();
   });
 }
