@@ -5,120 +5,108 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit Tugas — TaskKampus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div class="shell">
-<div id="sidebar-container"></div>
-<main class="main">
+  <div id="sidebar-container"></div>
+  <main class="main">
     <div class="page-header">
-        <h2>✏️ Edit Tugas</h2>
-        <p id="sub-judul">Memuat...</p>
+      <h2>✏️ Edit Tugas</h2>
+      <p id="sub-judul">Memuat...</p>
     </div>
     <div class="card">
-        <div id="alert-box"></div>
-        <form id="form-edit">
-            <div class="form-grid">
-                <div class="form-group full">
-                    <label>Judul Tugas</label>
-                    <input type="text" id="judul" required>
-                </div>
-                <div class="form-group">
-                    <label>Mata Kuliah</label>
-                    <input type="text" id="mataKuliah" required>
-                </div>
-                <div class="form-group">
-                    <label>Deadline</label>
-                    <input type="datetime-local" id="deadline" required>
-                </div>
-                <div class="form-group">
-                    <label>Prioritas</label>
-                    <select id="prioritas">
-                        <option value="rendah">🟢 Rendah</option>
-                        <option value="sedang">🟡 Sedang</option>
-                        <option value="tinggi">🔴 Tinggi</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select id="status">
-                        <option value="belum">⬜ Belum</option>
-                        <option value="proses">🔄 Proses</option>
-                        <option value="selesai">✅ Selesai</option>
-                    </select>
-                </div>
-                <div class="form-group full">
-                    <label>Deskripsi</label>
-                    <textarea id="deskripsi"></textarea>
-                </div>
-            </div>
-            <div style="display:flex;gap:10px">
-                <button type="submit" class="btn btn-primary">💾 Update Tugas</button>
-                <a href="dashboard.html" class="btn btn-ghost">Batal</a>
-            </div>
-        </form>
+      <div id="alert-box"></div>
+      <form id="form-edit">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Judul Tugas</label>
+            <input type="text" id="judul" required>
+          </div>
+          <div class="form-group">
+            <label>Mata Kuliah</label>
+            <input type="text" id="mataKuliah" required>
+          </div>
+          <div class="form-group">
+            <label>Deadline</label>
+            <input type="datetime-local" id="deadline" required>
+          </div>
+          <div class="form-group">
+            <label>Prioritas</label>
+            <select id="prioritas">
+              <option value="rendah">🟢 Rendah</option>
+              <option value="sedang">🟡 Sedang</option>
+              <option value="tinggi">🔴 Tinggi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="status">
+              <option value="belum">⬜ Belum</option>
+              <option value="proses">🔄 Proses</option>
+              <option value="selesai">✅ Selesai</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Deskripsi</label>
+            <textarea id="deskripsi"></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="submit" class="btn btn-primary">💾 Update Tugas</button>
+          <a href="dashboard.html" class="btn btn-ghost">Batal</a>
+        </div>
+      </form>
     </div>
-</main>
+  </main>
 </div>
-
+<div id="bottom-nav-container"></div>
 <script type="module">
 import { auth, db } from "./js/firebase-config.js";
 import { doc, getDoc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import { requireAuth, renderSidebar, getAllTugas, getNotifikasi, toDate } from "./js/common.js";
-
-const params = new URLSearchParams(window.location.search);
-const tugasId = params.get("id");
-
-if (!tugasId) window.location.href = "dashboard.html";
-
+import { requireAuth, renderSidebar, renderBottomNav, getAllTugas, getNotifikasi, clearTugasCache, toDate, applyTheme } from "./js/common.js";
+applyTheme();
+const tugasId = new URLSearchParams(window.location.search).get("id");
+if (!tugasId) clearTugasCache(user.uid);
+      window.location.href = "dashboard.html";
 requireAuth(async (user) => {
-    const tugas = await getAllTugas(user.uid);
-    const notif = getNotifikasi(tugas);
-    renderSidebar("dashboard", user.displayName || user.email, notif.length);
-
-    const snap = await getDoc(doc(db, "tugas", tugasId));
-    if (!snap.exists() || snap.data().uid !== user.uid) {
-        window.location.href = "dashboard.html";
-        return;
+  const tugas = await getAllTugas(user.uid);
+  const notif = getNotifikasi(tugas);
+  renderSidebar("dashboard", user.displayName || user.email, notif.length);
+  renderBottomNav("dashboard", notif.length);
+  const snap = await getDoc(doc(db, "tugas", tugasId));
+  if (!snap.exists() || snap.data().uid !== user.uid) { clearTugasCache(user.uid);
+      window.location.href = "dashboard.html"; return; }
+  const t = snap.data();
+  document.getElementById("sub-judul").textContent = t.judul;
+  document.getElementById("judul").value = t.judul;
+  document.getElementById("mataKuliah").value = t.mataKuliah;
+  document.getElementById("deskripsi").value = t.deskripsi || "";
+  document.getElementById("prioritas").value = t.prioritas;
+  document.getElementById("status").value = t.status;
+  const dl = toDate(t.deadline);
+  const pad = n => String(n).padStart(2,"0");
+  document.getElementById("deadline").value =
+    `${dl.getFullYear()}-${pad(dl.getMonth()+1)}-${pad(dl.getDate())}T${pad(dl.getHours())}:${pad(dl.getMinutes())}`;
+  document.getElementById("form-edit").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try {
+      await updateDoc(doc(db, "tugas", tugasId), {
+        judul: document.getElementById("judul").value.trim(),
+        mataKuliah: document.getElementById("mataKuliah").value.trim(),
+        deskripsi: document.getElementById("deskripsi").value.trim(),
+        deadline: Timestamp.fromDate(new Date(document.getElementById("deadline").value)),
+        prioritas: document.getElementById("prioritas").value,
+        status: document.getElementById("status").value,
+      });
+      clearTugasCache(user.uid);
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      document.getElementById("alert-box").innerHTML = `<div class="alert alert-error">Gagal update: ${err.message}</div>`;
     }
-
-    const t = snap.data();
-    document.getElementById("sub-judul").textContent = t.judul;
-    document.getElementById("judul").value = t.judul;
-    document.getElementById("mataKuliah").value = t.mataKuliah;
-    document.getElementById("deskripsi").value = t.deskripsi || "";
-    document.getElementById("prioritas").value = t.prioritas;
-    document.getElementById("status").value = t.status;
-
-    // Format datetime-local: YYYY-MM-DDTHH:MM
-    const dl = toDate(t.deadline);
-    const pad = n => String(n).padStart(2, "0");
-    document.getElementById("deadline").value =
-        `${dl.getFullYear()}-${pad(dl.getMonth()+1)}-${pad(dl.getDate())}T${pad(dl.getHours())}:${pad(dl.getMinutes())}`;
-
-    document.getElementById("form-edit").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const alertBox = document.getElementById("alert-box");
-        alertBox.innerHTML = "";
-
-        try {
-            await updateDoc(doc(db, "tugas", tugasId), {
-                judul:      document.getElementById("judul").value.trim(),
-                mataKuliah: document.getElementById("mataKuliah").value.trim(),
-                deskripsi:  document.getElementById("deskripsi").value.trim(),
-                deadline:   Timestamp.fromDate(new Date(document.getElementById("deadline").value)),
-                prioritas:  document.getElementById("prioritas").value,
-                status:     document.getElementById("status").value,
-            });
-            window.location.href = "dashboard.html";
-        } catch (err) {
-            alertBox.innerHTML = `<div class="alert alert-error">Gagal update: ${err.message}</div>`;
-        }
-    });
+  });
 });
 </script>
-
 </body>
 </html>
