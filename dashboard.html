@@ -51,7 +51,7 @@
     </div>
   </main>
 </div>
-<div id="bottom-nav-container"></div>
+<div id="top-nav-container"></div>
 
 <!-- MODAL KALENDER -->
 <div id="modal-kal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;padding:20px">
@@ -69,8 +69,8 @@
 <script type="module">
 import { db } from "./js/firebase-config.js";
 import { doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import { requireAuth, renderSidebar, renderBottomNav, sanitize, formatTanggal, toDate, getAllTugas, hitungStats, getNotifikasi } from "./js/common.js";
-import { requestNotifPermission, scheduleLocalNotif } from "./js/notifications.js";
+import { requireAuth, renderSidebar, renderTopNav, sanitize, formatTanggal, toDate, getAllTugas, hitungStats, getNotifikasi } from "./js/common.js";
+
 import { downloadICS, googleCalendarUrl } from "./js/calendar.js";
 
 let allTugas = [];
@@ -96,7 +96,7 @@ requireAuth(async (user) => {
   const notif = getNotifikasi(allTugas);
 
   renderSidebar("dashboard", user.displayName || user.email, notif.length);
-  renderBottomNav("dashboard", notif.length);
+  renderTopNav("dashboard", notif.length);
   renderNotifBar(notif);
   renderNotifPrompt(user);
   isiMatkul(allTugas);
